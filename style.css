@@ -104,17 +104,6 @@ button:hover {
     font-size: 13px;
 }
 
-.transparency-control {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-}
-
-.transparency-control input[type="checkbox"] {
-    margin: 0;
-}
-
 .controls button {
     margin: 0;
     padding: 8px 12px;

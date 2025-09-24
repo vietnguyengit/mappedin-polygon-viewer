@@ -6,7 +6,6 @@ let offsetY = 0;
 let minX, maxX, minY, maxY;
 let layers = new Set();
 let currentLayer = 'all';
-let transparencyMode = false;
 
 function init() {
     canvas = document.getElementById('mapCanvas');
@@ -105,11 +104,6 @@ function changeLayer() {
     currentLayer = document.getElementById('layerSelect').value;
     draw();
     updateInfo();
-}
-
-function toggleTransparency() {
-    transparencyMode = document.getElementById('transparencyMode').checked;
-    draw();
 }
 
 function getPolygonLayer(polygon) {
@@ -219,8 +213,7 @@ function drawPolygon(polygon, index) {
     ctx.closePath();
     
     const colour = polygon.material?.color || generateColour(index);
-    const alpha = (currentLayer === 'all' && transparencyMode) ? '60' : '40';
-    ctx.fillStyle = colour + alpha;
+    ctx.fillStyle = colour + '40';
     ctx.fill();
     
     ctx.strokeStyle = colour;
