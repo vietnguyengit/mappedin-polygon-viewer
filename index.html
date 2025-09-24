@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indoor Map Polygon Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Indoor Map Polygon Viewer</h1>
+        
+        <div class="input-section">
+            <h3>Paste JSON Data</h3>
+            <textarea id="jsonInput" placeholder="Paste your polygon JSON array here"></textarea>
+            <button onclick="visualisePolygons()">Visualise Polygons</button>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="controls">
+                <button onclick="zoomIn()">Zoom In</button>
+                <button onclick="zoomOut()">Zoom Out</button>
+                <button onclick="resetView()">Reset</button>
+                <button onclick="fitToView()">Fit All</button>
+            </div>
+            <canvas id="mapCanvas" width="800" height="600"></canvas>
+            <div class="info" id="info">Ready to visualise polygons</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
