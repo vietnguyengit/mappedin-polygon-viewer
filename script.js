@@ -6,12 +6,17 @@ let offsetY = 0;
 let minX, maxX, minY, maxY;
 let layers = new Set();
 let currentLayer = 'all';
+let tooltip = null;
 
 function init() {
     canvas = document.getElementById('mapCanvas');
     ctx = canvas.getContext('2d');
     
+    createTooltip();
+    
     canvas.addEventListener('wheel', handleWheel);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', hideTooltip);
     
     let isDragging = false;
     let lastX, lastY;
@@ -20,6 +25,7 @@ function init() {
         isDragging = true;
         lastX = e.clientX;
         lastY = e.clientY;
+        hideTooltip();
     });
     
     canvas.addEventListener('mousemove', (e) => {
@@ -37,11 +43,93 @@ function init() {
     });
 }
 
+function createTooltip() {
+    tooltip = document.createElement('div');
+    tooltip.style.cssText = `
+        position: absolute;
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: monospace;
+        pointer-events: none;
+        z-index: 1000;
+        display: none;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    `;
+    document.body.appendChild(tooltip);
+}
+
+function handleMouseMove(e) {
+    if (!polygons.length) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = (e.clientX - rect.left) / scale - offsetX;
+    const mouseY = (e.clientY - rect.top) / scale - offsetY;
+    
+    let hoveredPolygon = null;
+    
+    for (let polygon of polygons) {
+        if (shouldDrawPolygon(polygon) && isPointInPolygon(mouseX, mouseY, polygon)) {
+            hoveredPolygon = polygon;
+            break;
+        }
+    }
+    
+    if (hoveredPolygon) {
+        showTooltip(e.clientX, e.clientY, hoveredPolygon);
+    } else {
+        hideTooltip();
+    }
+}
+
+function isPointInPolygon(x, y, polygon) {
+    if (!polygon.vertexes || polygon.vertexes.length < 3) return false;
+    
+    const vertices = polygon.vertexes;
+    let inside = false;
+    
+    for (let i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+        const xi = vertices[i].x;
+        const yi = vertices[i].y;
+        const xj = vertices[j].x;
+        const yj = vertices[j].y;
+        
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+        }
+    }
+    
+    return inside;
+}
+
+function showTooltip(x, y, polygon) {
+    const polygonId = polygon.id || polygon.externalId || 'Unknown ID';
+    const layer = polygon.layer || 'No Layer';
+    
+    tooltip.innerHTML = `
+        ID: ${polygonId}<br>
+        Layer: ${layer}
+    `;
+    
+    tooltip.style.display = 'block';
+    tooltip.style.left = (x + 10) + 'px';
+    tooltip.style.top = (y - 10) + 'px';
+}
+
+function hideTooltip() {
+    if (tooltip) {
+        tooltip.style.display = 'none';
+    }
+}
 function handleWheel(e) {
     e.preventDefault();
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     scale *= zoomFactor;
     draw();
+    hideTooltip();
 }
 
 function visualisePolygons() {
