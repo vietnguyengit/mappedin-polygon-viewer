@@ -131,7 +131,7 @@ function calculateBounds() {
     maxY = -Infinity;
 
     polygons.forEach(polygon => {
-        if (polygon.vertexes && shouldDrawPolygon(polygon)) {
+        if (polygon.vertexes) {
             polygon.vertexes.forEach(vertex => {
                 minX = Math.min(minX, vertex.x);
                 maxX = Math.max(maxX, vertex.x);
