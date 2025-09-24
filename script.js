@@ -15,7 +15,6 @@ function init() {
     createTooltip();
     
     canvas.addEventListener('wheel', handleWheel);
-    canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseleave', hideTooltip);
     
     let isDragging = false;
@@ -35,6 +34,9 @@ function init() {
             lastX = e.clientX;
             lastY = e.clientY;
             draw();
+            hideTooltip();
+        } else {
+            handleMouseMove(e);
         }
     });
     
