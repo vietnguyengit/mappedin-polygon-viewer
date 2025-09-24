@@ -47,20 +47,19 @@ function init() {
 
 function createTooltip() {
     tooltip = document.createElement('div');
-    tooltip.style.cssText = `
-        position: absolute;
-        background: #333;
-        color: white;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-family: monospace;
-        pointer-events: none;
-        z-index: 1000;
-        display: none;
-        white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    `;
+    tooltip.id = 'polygonTooltip';
+    tooltip.style.position = 'fixed';
+    tooltip.style.background = '#333';
+    tooltip.style.color = 'white';
+    tooltip.style.padding = '8px 12px';
+    tooltip.style.borderRadius = '4px';
+    tooltip.style.fontSize = '12px';
+    tooltip.style.fontFamily = 'monospace';
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.zIndex = '1000';
+    tooltip.style.display = 'none';
+    tooltip.style.whiteSpace = 'nowrap';
+    tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
     document.body.appendChild(tooltip);
 }
 
@@ -108,17 +107,15 @@ function isPointInPolygon(x, y, polygon) {
 }
 
 function showTooltip(x, y, polygon) {
+    if (!tooltip) return;
+    
     const polygonId = polygon.id || polygon.externalId || 'Unknown ID';
     const layer = polygon.layer || 'No Layer';
     
-    tooltip.innerHTML = `
-        ID: ${polygonId}<br>
-        Layer: ${layer}
-    `;
-    
+    tooltip.innerHTML = `ID: ${polygonId}<br>Layer: ${layer}`;
     tooltip.style.display = 'block';
     tooltip.style.left = (x + 10) + 'px';
-    tooltip.style.top = (y - 10) + 'px';
+    tooltip.style.top = (y - 30) + 'px';
 }
 
 function hideTooltip() {
