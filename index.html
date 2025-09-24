@@ -17,6 +17,16 @@
         </div>
         
         <div class="canvas-container">
+            <div class="floor-controls" id="floorControls" style="display: none;">
+                <label>Floor:</label>
+                <select id="floorSelect" onchange="changeFloor()">
+                    <option value="all">All Floors</option>
+                </select>
+                <label class="transparency-control">
+                    <input type="checkbox" id="transparencyMode" onchange="toggleTransparency()">
+                    Transparency Mode
+                </label>
+            </div>
             <div class="controls">
                 <button onclick="zoomIn()">Zoom In</button>
                 <button onclick="zoomOut()">Zoom Out</button>

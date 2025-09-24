@@ -4,6 +4,9 @@ let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 let minX, maxX, minY, maxY;
+let floors = new Set();
+let currentFloor = 'all';
+let transparencyMode = false;
 
 function init() {
     canvas = document.getElementById('mapCanvas');
@@ -58,6 +61,8 @@ function visualisePolygons() {
         }
 
         calculateBounds();
+        detectFloors();
+        setupFloorControls();
         fitToView();
         updateInfo();
         
@@ -66,6 +71,57 @@ function visualisePolygons() {
     }
 }
 
+function detectFloors() {
+    floors.clear();
+    
+    polygons.forEach(polygon => {
+        const zPos = polygon.geometry?.position?.z || 0;
+        const zScale = polygon.geometry?.scale?.z || 1;
+        const floorKey = `${zPos}_${zScale}`;
+        floors.add(floorKey);
+    });
+}
+
+function setupFloorControls() {
+    const floorSelect = document.getElementById('floorSelect');
+    const floorControls = document.getElementById('floorControls');
+    
+    floorSelect.innerHTML = '<option value="all">All Floors</option>';
+    
+    if (floors.size > 1) {
+        Array.from(floors).sort().forEach((floor, index) => {
+            const option = document.createElement('option');
+            option.value = floor;
+            option.textContent = `Floor ${index + 1}`;
+            floorSelect.appendChild(option);
+        });
+        floorControls.style.display = 'flex';
+    } else {
+        floorControls.style.display = 'none';
+    }
+}
+
+function changeFloor() {
+    currentFloor = document.getElementById('floorSelect').value;
+    draw();
+    updateInfo();
+}
+
+function toggleTransparency() {
+    transparencyMode = document.getElementById('transparencyMode').checked;
+    draw();
+}
+
+function getPolygonFloor(polygon) {
+    const zPos = polygon.geometry?.position?.z || 0;
+    const zScale = polygon.geometry?.scale?.z || 1;
+    return `${zPos}_${zScale}`;
+}
+
+function shouldDrawPolygon(polygon) {
+    if (currentFloor === 'all') return true;
+    return getPolygonFloor(polygon) === currentFloor;
+}
 function calculateBounds() {
     if (polygons.length === 0) return;
 
@@ -75,7 +131,7 @@ function calculateBounds() {
     maxY = -Infinity;
 
     polygons.forEach(polygon => {
-        if (polygon.vertexes) {
+        if (polygon.vertexes && shouldDrawPolygon(polygon)) {
             polygon.vertexes.forEach(vertex => {
                 minX = Math.min(minX, vertex.x);
                 maxX = Math.max(maxX, vertex.x);
@@ -114,7 +170,9 @@ function draw() {
     drawGrid();
     
     polygons.forEach((polygon, index) => {
-        drawPolygon(polygon, index);
+        if (shouldDrawPolygon(polygon)) {
+            drawPolygon(polygon, index);
+        }
     });
     
     ctx.restore();
@@ -161,7 +219,8 @@ function drawPolygon(polygon, index) {
     ctx.closePath();
     
     const colour = polygon.material?.color || generateColour(index);
-    ctx.fillStyle = colour + '40';
+    const alpha = (currentFloor === 'all' && transparencyMode) ? '60' : '40';
+    ctx.fillStyle = colour + alpha;
     ctx.fill();
     
     ctx.strokeStyle = colour;
@@ -189,7 +248,9 @@ function generateColour(index) {
 
 function updateInfo() {
     const info = document.getElementById('info');
-    info.textContent = `${polygons.length} polygons | ${minX.toFixed(0)},${minY.toFixed(0)} to ${maxX.toFixed(0)},${maxY.toFixed(0)} | ${scale.toFixed(2)}x`;
+    const visiblePolygons = polygons.filter(shouldDrawPolygon).length;
+    const floorText = currentFloor === 'all' ? `${floors.size} floors` : 'single floor';
+    info.textContent = `${visiblePolygons}/${polygons.length} polygons | ${floorText} | ${minX.toFixed(0)},${minY.toFixed(0)} to ${maxX.toFixed(0)},${maxY.toFixed(0)} | ${scale.toFixed(2)}x`;
 }
 
 function zoomIn() {
