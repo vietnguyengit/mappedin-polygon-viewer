@@ -144,14 +144,16 @@ function calculateBounds() {
 function fitToView() {
     if (polygons.length === 0) return;
 
-    const padding = 40;
+    const padding = 60;
     const canvasWidth = canvas.width - padding * 2;
     const canvasHeight = canvas.height - padding * 2;
     
     const dataWidth = maxX - minX;
     const dataHeight = maxY - minY;
     
-    scale = Math.min(canvasWidth / dataWidth, canvasHeight / dataHeight);
+    if (dataWidth === 0 || dataHeight === 0) return;
+    
+    scale = Math.min(canvasWidth / dataWidth, canvasHeight / dataHeight) * 0.9;
     
     offsetX = (canvas.width / 2 / scale) - (minX + dataWidth / 2);
     offsetY = (canvas.height / 2 / scale) - (minY + dataHeight / 2);
@@ -178,12 +180,12 @@ function draw() {
 }
 
 function drawGrid() {
-    if (scale < 0.1) return;
+    if (scale < 0.2) return;
     
     ctx.strokeStyle = '#f5f5f5';
     ctx.lineWidth = 1 / scale;
     
-    const gridSize = 100;
+    const gridSize = scale > 1 ? 50 : 100;
     const startX = Math.floor((minX - offsetX) / gridSize) * gridSize;
     const endX = Math.ceil((maxX - offsetX) / gridSize) * gridSize;
     const startY = Math.floor((minY - offsetY) / gridSize) * gridSize;
