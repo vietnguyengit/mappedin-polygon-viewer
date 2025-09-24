@@ -102,7 +102,8 @@ function setupLayerControls() {
 
 function changeLayer() {
     currentLayer = document.getElementById('layerSelect').value;
-    draw();
+    calculateBounds();
+    fitToView();
     updateInfo();
 }
 
@@ -125,7 +126,7 @@ function calculateBounds() {
     maxY = -Infinity;
 
     polygons.forEach(polygon => {
-        if (polygon.vertexes) {
+        if (polygon.vertexes && shouldDrawPolygon(polygon)) {
             polygon.vertexes.forEach(vertex => {
                 minX = Math.min(minX, vertex.x);
                 maxX = Math.max(maxX, vertex.x);
@@ -134,6 +135,10 @@ function calculateBounds() {
             });
         }
     });
+
+    if (minX === Infinity) {
+        minX = maxX = minY = maxY = 0;
+    }
 }
 
 function fitToView() {
