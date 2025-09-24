@@ -144,7 +144,7 @@ function calculateBounds() {
 function fitToView() {
     if (polygons.length === 0) return;
 
-    const padding = 60;
+    const padding = 100;
     const canvasWidth = canvas.width - padding * 2;
     const canvasHeight = canvas.height - padding * 2;
     
@@ -153,7 +153,7 @@ function fitToView() {
     
     if (dataWidth === 0 || dataHeight === 0) return;
     
-    scale = Math.min(canvasWidth / dataWidth, canvasHeight / dataHeight) * 0.9;
+    scale = Math.min(canvasWidth / dataWidth, canvasHeight / dataHeight) * 0.8;
     
     offsetX = (canvas.width / 2 / scale) - (minX + dataWidth / 2);
     offsetY = (canvas.height / 2 / scale) - (minY + dataHeight / 2);
@@ -220,19 +220,19 @@ function drawPolygon(polygon, index) {
     ctx.closePath();
     
     const colour = polygon.material?.color || generateColour(index);
-    ctx.fillStyle = colour + '40';
+    ctx.fillStyle = colour + '20';
     ctx.fill();
     
     ctx.strokeStyle = colour;
-    ctx.lineWidth = 1.5 / scale;
+    ctx.lineWidth = 2 / scale;
     ctx.stroke();
     
-    if (polygon.layer && scale > 0.3) {
+    if (polygon.layer && scale > 0.2) {
         const centreX = vertices.reduce((sum, v) => sum + v.x, 0) / vertices.length;
         const centreY = vertices.reduce((sum, v) => sum + v.y, 0) / vertices.length;
         
         ctx.fillStyle = '#333';
-        ctx.font = `${11/scale}px -apple-system, BlinkMacSystemFont, sans-serif`;
+        ctx.font = `${14/scale}px -apple-system, BlinkMacSystemFont, sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(polygon.layer, centreX, centreY);
     }
