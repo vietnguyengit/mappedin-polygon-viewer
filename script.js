@@ -4,8 +4,8 @@ let scale = 1;
 let offsetX = 0;
 let offsetY = 0;
 let minX, maxX, minY, maxY;
-let floors = new Set();
-let currentFloor = 'all';
+let layers = new Set();
+let currentLayer = 'all';
 let transparencyMode = false;
 
 function init() {
@@ -61,8 +61,8 @@ function visualisePolygons() {
         }
 
         calculateBounds();
-        detectFloors();
-        setupFloorControls();
+        detectLayers();
+        setupLayerControls();
         fitToView();
         updateInfo();
         
@@ -71,38 +71,38 @@ function visualisePolygons() {
     }
 }
 
-function detectFloors() {
-    floors.clear();
+function detectLayers() {
+    layers.clear();
     
     polygons.forEach(polygon => {
         const zPos = polygon.geometry?.position?.z || 0;
         const zScale = polygon.geometry?.scale?.z || 1;
-        const floorKey = `${zPos}_${zScale}`;
-        floors.add(floorKey);
+        const layerKey = `${zPos}_${zScale}`;
+        layers.add(layerKey);
     });
 }
 
-function setupFloorControls() {
-    const floorSelect = document.getElementById('floorSelect');
-    const floorControls = document.getElementById('floorControls');
+function setupLayerControls() {
+    const layerSelect = document.getElementById('layerSelect');
+    const layerControls = document.getElementById('layerControls');
     
-    floorSelect.innerHTML = '<option value="all">All Floors</option>';
+    layerSelect.innerHTML = '<option value="all">All Layers</option>';
     
-    if (floors.size > 1) {
-        Array.from(floors).sort().forEach((floor, index) => {
+    if (layers.size > 1) {
+        Array.from(layers).sort().forEach((layer, index) => {
             const option = document.createElement('option');
-            option.value = floor;
-            option.textContent = `Floor ${index + 1}`;
-            floorSelect.appendChild(option);
+            option.value = layer;
+            option.textContent = `Layer ${index + 1}`;
+            layerSelect.appendChild(option);
         });
-        floorControls.style.display = 'flex';
+        layerControls.style.display = 'flex';
     } else {
-        floorControls.style.display = 'none';
+        layerControls.style.display = 'none';
     }
 }
 
-function changeFloor() {
-    currentFloor = document.getElementById('floorSelect').value;
+function changeLayer() {
+    currentLayer = document.getElementById('layerSelect').value;
     draw();
     updateInfo();
 }
@@ -112,15 +112,15 @@ function toggleTransparency() {
     draw();
 }
 
-function getPolygonFloor(polygon) {
+function getPolygonLayer(polygon) {
     const zPos = polygon.geometry?.position?.z || 0;
     const zScale = polygon.geometry?.scale?.z || 1;
     return `${zPos}_${zScale}`;
 }
 
 function shouldDrawPolygon(polygon) {
-    if (currentFloor === 'all') return true;
-    return getPolygonFloor(polygon) === currentFloor;
+    if (currentLayer === 'all') return true;
+    return getPolygonLayer(polygon) === currentLayer;
 }
 function calculateBounds() {
     if (polygons.length === 0) return;
@@ -219,7 +219,7 @@ function drawPolygon(polygon, index) {
     ctx.closePath();
     
     const colour = polygon.material?.color || generateColour(index);
-    const alpha = (currentFloor === 'all' && transparencyMode) ? '60' : '40';
+    const alpha = (currentLayer === 'all' && transparencyMode) ? '60' : '40';
     ctx.fillStyle = colour + alpha;
     ctx.fill();
     
@@ -249,8 +249,8 @@ function generateColour(index) {
 function updateInfo() {
     const info = document.getElementById('info');
     const visiblePolygons = polygons.filter(shouldDrawPolygon).length;
-    const floorText = currentFloor === 'all' ? `${floors.size} floors` : 'single floor';
-    info.textContent = `${visiblePolygons}/${polygons.length} polygons | ${floorText} | ${minX.toFixed(0)},${minY.toFixed(0)} to ${maxX.toFixed(0)},${maxY.toFixed(0)} | ${scale.toFixed(2)}x`;
+    const layerText = currentLayer === 'all' ? `${layers.size} layers` : 'single layer';
+    info.textContent = `${visiblePolygons}/${polygons.length} polygons | ${layerText} | ${minX.toFixed(0)},${minY.toFixed(0)} to ${maxX.toFixed(0)},${maxY.toFixed(0)} | ${scale.toFixed(2)}x`;
 }
 
 function zoomIn() {
